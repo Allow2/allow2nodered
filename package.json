@@ -1,0 +1,37 @@
+{
+  "name": "Allow2NodeRED",
+  "version": "0.8.0",
+  "description": "Allow2 nodes for Node-RED",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "node-red": {
+    "nodes": {
+      "check": "Allow2/check.js"
+    }
+  },
+  "author": "Allow2",
+  "contributors": [
+    {
+      "name": "Allow2CEO",
+      "email": "ceo@Allow2.com",
+      "url": "https://www.allow2.com/"
+    }
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "allow2": "^1.0.0",
+    "async": "^2.6.1"
+  },
+  "keywords": [
+    "allow2"
+  ],
+  "maintainers": [
+    {
+      "name": "Allow2CEO",
+      "email": "ceo@Allow2.com"
+    }
+  ],
+  "repository": "https://github.com/Allow2/Allow2NodeRED"
+}
