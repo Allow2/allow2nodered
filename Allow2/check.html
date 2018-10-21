@@ -27,29 +27,46 @@
     </div>
 
     <div class="form-row">
-        <label for="node-input-pairing"><i class="icon-handshake"></i> Pairing</label>
+        <label for="node-input-pairing"><i class="fa fa-handshake"></i> Pairing</label>
         <input type="text" id="node-input-pairing" placeholder="Pairing">
     </div>
 
     <div class="form-row">
-        <label for="node-input-timezone"><i class="fa fa-globe-americas"></i> Timezone</label>
+        <label for="node-input-timezone"><i class="fa fa-globe"></i> Timezone</label>
         <input type="text" id="node-input-timezone" placeholder="Australia/Sydney">
     </div>
+    <div class="form-tips">Tip: Timezone is required in order for Allow2 to correctly assign the day type and rights for that time of day. Use values from the tz database
+    <a target="timezones" href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">https://en.wikipedia.org/wiki/List_of_tz_database_time_zones</a></div>
 
     <div class="form-row">
         <label for="node-input-childId"><i class="fa fa-child"></i> ChildId</label>
         <input type="text" id="node-input-childId" placeholder="ChildId">
     </div>
+    <div class="form-tips">Tip: The ChildId is required. You can specify the childId here, but if provided via <code>msg.payload.childId</code> that payload value will override it.</div>
 </script>
 
 <script type="text/x-red" data-help-name="Allow2Check">
     <p>Check access with Allow2.</p>
     <h3>Input</h3>
     <dl class="message-properties">
-        <dt>payload
-            <span class="property-type">{ child: id, log: true/false }</span>
-        </dt>
+        <dt class="optional">payload.childId <span class="property-type">integer</span> </dt>
+        <dd>Which child are we checking access for? Note that childId needs to be either supplied in the node configuration OR the payload. The payload value will override any value in the node configuration.</dd>
+
+        <dt>payload.log <span class="property-type">boolean</span> </dt>
+        <dd>Determines if we are checking access only (false), or also recording/logging usage (true).</dd>
+
+        <dt>payload.activities <span class="property-type">buffer</span> </dt>
+        <dd>List the activities we need to check/log, eg: <b>[{ "id": 3, "log": true }]</b> the "log" parameter overrides the payload.log value for that activity.</dd>
+
+        <dt class="optional">payload.timer <span class="property-type">string</span> </dt>
+        <dd>values: "on", "off" - passing this parameter will enable or disable a timer to periodically check the allowance (repeatedly send "check")
+        without having to set up your own timer.</dd>
+
+        <dt class="optional">payload.autostop <span class="property-type">boolean</span> </dt>
+        <dd>if true, and there is a running timer, the timer will be automatically stopped when the access is no longer allowed. Otherwise the timer will continue to run
+        (and log access) even if access is no longer allowed. </dd>
     </dl>
     <h3>Details</h3>
-    <p>Todo.</p>
+    <p>You MUST provide the activities list in the payload at this time (see: <a target="pairing" href="https://npm.runkit.com/allow2">https://npm.runkit.com/allow2</a>).</p>
+    <p></p>
 </script>

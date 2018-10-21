@@ -13,21 +13,29 @@
         label: function() {
             return this.name;
         },
-        onpaletteremove: function () {
-            RED.events.off('nodes:add', this._onAddNode)
-        },
+        // onpaletteremove: function () {
+        //     RED.events.off('nodes:add', this._onAddNode)
+        // },
         paletteLabel: 'Allow2 Device Pairing'
     });
 </script>
 
 <script type="text/x-red" data-template-name="Allow2Pairing">
-    <div class="form-row node-input-pairing">
-        <a id="node-config-input-pairing" class="editor-button">Create New Device Pairing</a>
-    </div>
+    <!-- <div class="form-row node-input-pairing">-->
+        <!--<a id="node-config-input-pairing" class="editor-button">Create New Device Pairing</a>-->
+    <!--</div> -->
     <div class="form-row">
         <label for="node-config-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-config-input-name" placeholder="Name">
     </div>
+
+    <div class="form-row">
+        <label for="node-config-input-deviceToken"><i class="icon-tag"></i> Device Token</label>
+        <input type="text" id="node-config-input-deviceToken" placeholder="B0hNax6VCFi9vphu">
+    </div>
+    <div class="form-tips">Tip: you can use this example device token for testing or generate your own at
+    <a target="devportal" href="https://developer.allow2.com">https://developer.allow2.com</a></div>
+
     <div class="form-row">
         <label for="node-config-input-userId"><i class="icon-tag"></i> UserId</label>
         <input type="text" id="node-config-input-userId" placeholder="UserId">
@@ -40,12 +48,16 @@
         <label for="node-config-input-pairToken"><i class="icon-tag"></i> Pair Token</label>
         <input type="text" id="node-config-input-pairToken" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX">
     </div>
-    <div class="form-row">
-        <label for="node-config-input-deviceToken"><i class="icon-tag"></i> Device Token</label>
-        <input type="text" id="node-config-input-deviceToken" placeholder="B0hNax6VCFi9vphu">
-    </div>
+    <div class="form-tips">Tip: generate a new pairing at <a target="pairing" href="https://npm.runkit.com/allow2">https://npm.runkit.com/allow2</a>.</div>
+
 </script>
 
 <script type="text/x-red" data-help-name="Allow2Pairing">
     <p>To check and manage access, there needs to be a "device" set up in Allow2.</p>
+    <p>A pairing dialog is not yet set up.</p>
+    <p>To get values for this dialog, you need to visit <a target="devportal" href="https://developer.allow2.com">https://developer.allow2.com</a>
+     to generate a device token, and then create a pairing.</p>
+    <p>The easiest way to quickly create a pairing is to visit <a target="pairing" href="https://npm.runkit.com/allow2">https://npm.runkit.com/allow2</a>
+     and follow the first steps to use your allow2 login and your device token
+    (or use the "B0hNax6VCFi9vphu" testing/demo token ) and generate the values for these fields.</p>
 </script>
