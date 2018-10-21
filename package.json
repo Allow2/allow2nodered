@@ -1,7 +1,7 @@
 {
-  "name": "Allow2NodeRED",
+  "name": "allow2nodered",
   "version": "0.8.0",
-  "description": "Allow2 nodes for Node-RED",
+  "description": "Allow2 nodes for node-red",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -51,5 +51,5 @@
       "email": "ceo@Allow2.com"
     }
   ],
-  "repository": "https://github.com/Allow2/Allow2NodeRED"
+  "repository": "https://github.com/Allow2/allow2nodered"
 }
