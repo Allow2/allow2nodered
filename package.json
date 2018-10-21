@@ -1,6 +1,6 @@
 {
   "name": "allow2nodered",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Allow2 nodes for node-red",
   "main": "index.js",
   "scripts": {
