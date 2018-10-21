@@ -8,7 +8,8 @@
   },
   "node-red": {
     "nodes": {
-      "check": "Allow2/check.js"
+      "Allow2Pairing": "Allow2/pairing.js",
+      "Allow2Check": "Allow2/check.js"
     }
   },
   "author": "Allow2",

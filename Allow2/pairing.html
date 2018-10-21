@@ -1,0 +1,51 @@
+<script type="text/javascript">
+    RED.nodes.registerType('Allow2Pairing', {
+        category: 'config',
+        defaults: {
+            name: { value : "", required: true },
+            userId: { value : 0, required: true, validate:RED.validators.number() },
+            pairId: { value : 0, required: true, validate:RED.validators.number() },
+            pairToken: { value : "", required: true },
+            deviceToken: { value : "B0hNax6VCFi9vphu", required: true }
+        },
+        color: '#FFFFFF',
+        icon: "Allow2.png",
+        label: function() {
+            return this.name;
+        },
+        onpaletteremove: function () {
+            RED.events.off('nodes:add', this._onAddNode)
+        },
+        paletteLabel: 'Allow2 Device Pairing'
+    });
+</script>
+
+<script type="text/x-red" data-template-name="Allow2Pairing">
+    <div class="form-row node-input-pairing">
+        <a id="node-config-input-pairing" class="editor-button">Create New Device Pairing</a>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-userId"><i class="icon-tag"></i> UserId</label>
+        <input type="text" id="node-config-input-userId" placeholder="UserId">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-pairId"><i class="icon-tag"></i> PairId</label>
+        <input type="text" id="node-config-input-pairId" placeholder="PairId">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-pairToken"><i class="icon-tag"></i> Pair Token</label>
+        <input type="text" id="node-config-input-pairToken" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-deviceToken"><i class="icon-tag"></i> Device Token</label>
+        <input type="text" id="node-config-input-deviceToken" placeholder="B0hNax6VCFi9vphu">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="Allow2Pairing">
+    <p>To check and manage access, there needs to be a "device" set up in Allow2.</p>
+</script>

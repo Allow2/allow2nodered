@@ -3,12 +3,10 @@
         category: 'Allow2',
         color: '#FFFFFF',
         defaults: {
-            name: { value : "" },
-            userId: { value : "" },
-            pairId: { value : "" },
-            pairToken: { value : "" },
-            deviceToken: { value : "B0hNax6VCFi9vphu" },
-            childId: { value : "" }
+            name: { value : '' },
+            pairing: { type: 'Allow2Pairing', required: true },
+            timezone: { value : 'Australia/Sydney', required: true },
+            childId: { value : '' }
         },
         inputs: 1,
         outputs: 1,
@@ -24,33 +22,28 @@
 
 <script type="text/x-red" data-template-name="Allow2Check">
     <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
+
     <div class="form-row">
-        <label for="node-input-userId"><i class="icon-tag"></i> UserId</label>
-        <input type="text" id="node-input-userId" placeholder="UserId">
+        <label for="node-input-pairing"><i class="icon-handshake"></i> Pairing</label>
+        <input type="text" id="node-input-pairing" placeholder="Pairing">
     </div>
+
     <div class="form-row">
-        <label for="node-input-pairId"><i class="icon-tag"></i> PairId</label>
-        <input type="text" id="node-input-pairId" placeholder="PairId">
+        <label for="node-input-timezone"><i class="fa fa-globe-americas"></i> Timezone</label>
+        <input type="text" id="node-input-timezone" placeholder="Australia/Sydney">
     </div>
+
     <div class="form-row">
-        <label for="node-input-pairToken"><i class="icon-tag"></i> Pair Token</label>
-        <input type="text" id="node-input-pairToken" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX">
-    </div>
-    <div class="form-row">
-        <label for="node-input-deviceToken"><i class="icon-tag"></i> Device Token</label>
-        <input type="text" id="node-input-deviceToken" placeholder="B0hNax6VCFi9vphu">
-    </div>
-    <div class="form-row">
-        <label for="node-input-childId"><i class="icon-tag"></i> ChildId</label>
+        <label for="node-input-childId"><i class="fa fa-child"></i> ChildId</label>
         <input type="text" id="node-input-childId" placeholder="ChildId">
     </div>
 </script>
 
 <script type="text/x-red" data-help-name="Allow2Check">
-    <p>Check access with Allow2.
+    <p>Check access with Allow2.</p>
     <h3>Input</h3>
     <dl class="message-properties">
         <dt>payload
