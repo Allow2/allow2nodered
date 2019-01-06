@@ -15,22 +15,21 @@ module.exports = function(RED) {
 
         var node = this;
 
+        const userId = this.credentials.userId;
+        const pairId = this.credentials.pairId;
+        const pairToken = this.credentials.pairToken;
+
         this.check = function (params, callback) {
             var params = Object.assign(params, {
-                userId: config.userId,
-                pairId: config.pairId,
-                pairToken: config.pairToken,
+                userId: userId,
+                pairId: pairId,
+                pairToken: pairToken,
                 deviceToken: config.deviceToken
             });
 
-            if (!params.userId) {
-                // throw an error?
-                node.error("hit an error", "Missing UserId");
-                return
-            }
             if (!params.pairToken) {
                 // throw an error?
-                node.error("hit an error", "Missing Pair Token");
+                node.error("hit an error", "Missing PairToken");
                 return
             }
 
@@ -42,5 +41,11 @@ module.exports = function(RED) {
         }
     }
 
-    RED.nodes.registerType("Allow2Pairing", Pairing);
+    RED.nodes.registerType("Allow2Pairing", Pairing, {
+        credentials: {
+            userId: { type:"password" },
+            pairId: { type:"password" },
+            pairToken: { type:"password" }
+        }
+    });
 };

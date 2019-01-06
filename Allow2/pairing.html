@@ -2,11 +2,13 @@
     RED.nodes.registerType('Allow2Pairing', {
         category: 'config',
         defaults: {
-            name: { value : "", required: true },
-            userId: { value : 0, required: true, validate:RED.validators.number() },
-            pairId: { value : 0, required: true, validate:RED.validators.number() },
-            pairToken: { value : "", required: true },
-            deviceToken: { value : "B0hNax6VCFi9vphu", required: true }
+            name: { value : '', required: true },
+            deviceToken: { value : '', required: false }
+        },
+        credentials: {
+            userId: { value : 0, required: true },
+            pairId: { value : 0, required: true },
+            pairToken: { value : '', required: true }
         },
         color: '#FFFFFF',
         icon: "Allow2.png",
@@ -16,9 +18,68 @@
         // onpaletteremove: function () {
         //     RED.events.off('nodes:add', this._onAddNode)
         // },
-        paletteLabel: 'Allow2 Device Pairing'
+        paletteLabel: 'Allow2 Device Pairing',
+        oneditprepare: function() {
+            //called at launch time
+            console.log('oneditprepare', this);
+            $("#node-config-dialog-ok").button("disable");
+            $("#connectedDetails").hide();
+            ncnId = this.id;
+            //
+            // todo: add pairing qrcode mechanisms
+            //
+            var email, password, deviceName, deviceToken;
+            $("#allow2-connect").click(function() {
+                email = $("#allow2-email").val().trim().toLowerCase();
+                password = $("#allow2-password").val();
+                deviceName = $("#node-config-input-name").val().trim();
+                deviceToken = $("#allow2-email").val().trim().toLowerCase();
+                if (!deviceName || deviceName.length < 3) {
+                    return alert("Missing name");
+                }
+                if (!email || email.length < 3) {
+                    return alert("Missing email");
+                }
+                if (!password || password.length < 2) {
+                    return alert("Missing password");
+                }
+                if (!deviceToken || deviceToken.length < 1) {
+                    deviceToken = 'B0hNax6VCFi9vphu';
+                }
+                $("#allow2-connect").hide();
+                $("#allow2-connecting").show();
+                //
+                // todo: disable button and show a spinner to show connecting
+                //
+                const url = 'https://app.allow2.com/api/pairDevice';
+                const body = {
+                    user: email,
+                    pass: password,
+                    deviceToken: deviceToken,
+                    name: deviceName
+                };
+                console.log('connect', body);
+                $.post(url, body, function(data) {
+                    //write access token value back out to the form
+                    $("#allow2-connect").show();
+                    $("#allow2-connecting").hide();
+                    return console.log(data);
+                    if (data == "Error" || data == "Unauthorised") {
+                        alert('Authorization failed');
+                    }
+
+                    $("#node-config-input-accesstoken").val(data);
+                    $("#node-config-dialog-ok").button("enable");
+
+                    return alert('Connected. Click Update below to save credentials');
+                });
+            });
+        },
+        exportable: false
     });
 </script>
+
+<!-- script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.1/qrcode.min.js"></script -->
 
 <script type="text/x-red" data-template-name="Allow2Pairing">
     <!-- <div class="form-row node-input-pairing">-->
@@ -29,26 +90,50 @@
         <input type="text" id="node-config-input-name" placeholder="Name">
     </div>
 
-    <div class="form-row">
-        <label for="node-config-input-deviceToken"><i class="icon-tag"></i> Device Token</label>
-        <input type="text" id="node-config-input-deviceToken" placeholder="B0hNax6VCFi9vphu">
-    </div>
-    <div class="form-tips">Tip: you can use this example device token for testing or generate your own at
-    <a target="devportal" href="https://developer.allow2.com">https://developer.allow2.com</a></div>
+   <div id="allow2Login">
+        <div class="form-row">
+            <label for="node-config-input-deviceToken"><i class="icon-tag"></i> Device Token</label>
+            <input type="text" id="node-config-input-deviceToken" placeholder="B0hNax6VCFi9vphu">
+        </div>
+        <div class="form-tips">
+            Tip: you can leave this blank to use this default device token, or generate your own at
+            <a target="devportal" href="https://developer.allow2.com">https://developer.allow2.com</a>
+        </div>
 
-    <div class="form-row">
-        <label for="node-config-input-userId"><i class="icon-tag"></i> UserId</label>
-        <input type="text" id="node-config-input-userId" placeholder="UserId">
+        <div class="form-row"></div>
+        <div class="form-row">
+            <label for="allow2-email"><i class="icon-tag"></i> email</label>
+            <input type="text" id="allow2-email" placeholder="bob@email.com">
+        </div>
+        <div class="form-row">
+            <label for="allow2-password"><i class="icon-tag"></i> Password</label>
+            <input type="password" id="allow2-password" placeholder="password">
+        </div>
+        <div class="form-row">
+            <a class="btn" id="allow2-connect" target="_blank">Connect</a>
+            <span id="allow2-connecting" hidden>Connecting...</span>
+        </div>
+        <div class="form-tips">
+            Tip: you need an account at <a target="allow2" href="https://app.allow2.com">https://app.allow2.com</a>
+            in order to create this connection.
+        </div>
     </div>
-    <div class="form-row">
-        <label for="node-config-input-pairId"><i class="icon-tag"></i> PairId</label>
-        <input type="text" id="node-config-input-pairId" placeholder="PairId">
+
+    <div id="connectedDetails">
+        <div class="form-row"></div>
+        <div class="form-row" hidden>
+            <label for="node-config-input-userId"><i class="icon-tag"></i> UserId</label>
+            <input type="password" id="node-config-input-userId" placeholder="not paired" readonly>
+        </div>
+        <div class="form-row" hidden>
+            <label for="node-config-input-pairId"><i class="icon-tag"></i> PairId</label>
+            <input type="password" id="node-config-input-pairId" placeholder="not paired" readonly>
+        </div>
+        <div class="form-row">
+            <label for="node-config-input-pairToken"><i class="icon-tag"></i> Pair Token</label>
+            <input type="password" id="node-config-input-pairToken" placeholder="not paired" readonly>
+        </div>
     </div>
-    <div class="form-row">
-        <label for="node-config-input-pairToken"><i class="icon-tag"></i> Pair Token</label>
-        <input type="text" id="node-config-input-pairToken" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX">
-    </div>
-    <div class="form-tips">Tip: generate a new pairing at <a target="pairing" href="https://npm.runkit.com/allow2">https://npm.runkit.com/allow2</a>.</div>
 
 </script>
 
