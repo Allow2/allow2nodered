@@ -58,8 +58,16 @@ module.exports = function(RED) {
     });
 
     function updatePairing(nodeId, nodeData, callback) {
+        if (!nodeData || !nodeData.id || !nodeData.children) {
+            console.log('invalid child structure', nodeData);
+            return callback(new Error('invalid child structure'));
+        }
         persist.pairings = persist.pairings || {};
         persist.pairings[nodeId] = nodeData;
+        // pre-sort the children
+        persist.pairings[nodeId].children = nodeData.children.sort(function(a, b) {
+            return (a.name || '').localeCompare(b.name || '')
+        });
         const data = JSON.stringify(persist);
         fs.writeFile(persistFile, data, callback);
     }
@@ -92,6 +100,8 @@ module.exports = function(RED) {
                 deviceToken: config.deviceToken
             });
 
+            console.log('checking', params);
+            
             allow2.check(params, callback);
             // function(err, result) {
             //     console.log('result from Allow2 check:', err, result);

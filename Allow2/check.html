@@ -3,10 +3,10 @@
         category: 'Allow2',
         color: '#FFFFFF',
         defaults: {
-            name: { value : '' },
-            pairing: { type: 'Allow2Pairing', required: true },
-            timezone: { value : 'Australia/Sydney', required: true },
-            childId: { value : '' }
+            name: {value: ''},
+            pairing: {type: 'Allow2Pairing', required: true},
+            timezone: {value: 'Australia/Sydney', required: true},
+            childId: {value: ''}
         },
         inputs: 1,
         outputs: 1,
@@ -14,8 +14,51 @@
         outputLabels: "result",
         paletteLabel: 'check',
         icon: "Allow2.png",
-        label: function() {
+        label: function () {
             return this.name || 'check';
+        },
+        oneditprepare: function () {
+            //called at launch time
+            console.log('oneditprepare', this);
+            $("#node-config-dialog-ok").button("disable");
+            $("#connectedDetails").hide();
+            $("#allow2-connect").hide();
+            $("#allow2-connecting").hide();
+
+            const pairingId = this.pairing;
+            //
+            // check current status, we may have been disconnected
+            //
+
+            $.get('allow2/paired/' + pairingId, function (data, textStatus, jqXHR) {
+                console.log('success', data);
+
+                if (!data || !data.paired) {
+                    return;
+                }
+
+                var select = $('#node-input-childId');
+                const selected = select.val();
+                if(select.prop) {
+                    var options = select.prop('options');
+                }
+                else {
+                    var options = select.attr('options');
+                }
+                $('option', select).remove();
+                if (data && data.children && (data.children.length > 0)) {
+                    options[options.length] = new Option('', '');
+                    $.each(data.children || {}, function(index, child) {
+                        options[options.length] = new Option(child.name, child.id);
+                    });
+                    select.val(selected);
+                } else {
+                    options[options.length] = new Option("No Children in Account", '');
+                    select.val('');
+                }
+
+                $("#ChildSelection").show();
+            });
         }
     });
 </script>
@@ -38,11 +81,16 @@
     <div class="form-tips">Tip: Timezone is required in order for Allow2 to correctly assign the day type and rights for that time of day. Use values from the tz database
     <a target="timezones" href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">https://en.wikipedia.org/wiki/List_of_tz_database_time_zones</a></div>
 
-    <div class="form-row">
-        <label for="node-input-childId"><i class="fa fa-child"></i> ChildId</label>
-        <input type="text" id="node-input-childId" placeholder="ChildId">
+    <div id="ChildSelection" hidden>
+        <div class="form-row"></div>
+        <div class="form-row">
+            <label for="node-input-childId"><i class="fa fa-child"></i> Child</label>
+            <select id="node-input-childId">
+                <option value="">Loading...</option>
+            </select>
+        </div>
+        <div class="form-tips">Tip: This is optional here, but you need to either specify the child here for all checks, or provide a <code>msg.payload.childId</code>. If using a payload value, that will be used instead.</div>
     </div>
-    <div class="form-tips">Tip: The ChildId is required. You can specify the childId here, but if provided via <code>msg.payload.childId</code> that payload value will override it.</div>
 </script>
 
 <script type="text/x-red" data-help-name="Allow2Check">

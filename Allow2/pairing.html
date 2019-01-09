@@ -39,9 +39,11 @@
                 console.log('success', data, textStatus, jqXHR);
 
                 if (data && data.paired) {
+                    console.log('connected');
                     return $("#connectedDetails").show();
                 }
 
+                console.log('not connected');
                 //
                 // Not Connected, show relevant controls to connect
                 //
@@ -144,7 +146,8 @@
                         }
 
                         // autosave
-                        const pairing = data.pair
+                        const pairing = data.pair;
+                        console.log('pairing', pairing);
                         $("#node-config-input-userId").val(pairing.userId);
                         $("#node-config-input-pairId").val(pairing.pairId);
                         $("#node-config-input-pairToken").val(pairing.token);
