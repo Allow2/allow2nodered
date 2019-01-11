@@ -114,17 +114,19 @@ module.exports = function(RED) {
 
         const nodeId = node.id.replace(/\./g, '_');
         currentNodes && currentNodes.add(nodeId);
-        const pairing = (persist.pairings && persist.pairings[nodeId]) || "{ paired: false }";
 
         const userId = this.credentials.userId;
         const pairId = this.credentials.pairId;
         const pairToken = this.credentials.pairToken;
 
+        var pairing = (persist.pairings && persist.pairings[nodeId]) || "{ paired: false }";
         if (!pairing) {
             node.status({fill: "red", shape: "dot", text: "not paired"});
         }
 
         node.check = function (params, callback) {
+            // make sure our pairing info is current
+            pairing = (persist.pairings && persist.pairings[nodeId]) || "{ paired: false }";
 
             if (!pairing || !pairing.paired || !pairToken) {
                 return callback(new Error("Not Paired"));
@@ -152,6 +154,13 @@ module.exports = function(RED) {
             updatePairing(nodeId, {
                 paired: false
             }, callback);
+        };
+
+        node.updateChildren = function (children) {
+            // make sure our pairing info is current
+            var pairing = (persist.pairings && persist.pairings[nodeId]) || "{ paired: false }";
+            pairing.children = children;
+            updatePairing(nodeId, pairing);
         };
     }
 

@@ -80,6 +80,11 @@ module.exports = function(RED) {
                     node.error('check failure', 'unknown child');
                     return node.status({ fill:"grey", shape:"ring", text:"error" });
                 }
+
+                // it worked, persist the children list in case it changed:
+                node._pairing.updateChildren(result.children);
+
+                // now update node status and emit a response message
                 msg.payload.childId = parseInt(childId);
                 msg.payload.timezone = config.timezone;
                 msg.payload.response = result;

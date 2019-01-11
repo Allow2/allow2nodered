@@ -33,7 +33,6 @@
         { code: 'America/Montevideo', text: '(UTC-03:00) Montevideo' },
         { code: 'America/Bahia', text: '(UTC-03:00) Salvador' },
         { code: 'America/Noronha', text: '(UTC-02:00) Coordinated Universal Time-02' },
-        { code: undefined, text: '(UTC-02:00) Mid-Atlantic - Old' },
         { code: 'America/Scoresbysund', text: '(UTC-01:00) Azores' },
         { code: 'Atlantic/Cape_Verde', text: '(UTC-01:00) Cape Verde Is.' },
         { code: 'Africa/Casablanca', text: '(UTC) Casablanca' },
@@ -110,8 +109,7 @@
         { code: 'Pacific/Apia', text: '(UTC+13:00) Samoa' }
     ];
 
-    function populateCountries(select) {
-        const selected = select.val();
+    function populateCountries(select, selected) {
         if (select.prop) {
             var options = select.prop('options');
         }
@@ -122,7 +120,9 @@
         $.each(timezones, function (index, timezone) {
             options[options.length] = new Option(timezone.text, timezone.code);
         });
-        select.val(selected);
+        console.log('selected timezone', selected);
+        $("option[value='" + selected + "']", select).attr("selected", true);
+        //select.val(selected);
     }
 
     RED.nodes.registerType('Allow2Check', {
@@ -151,9 +151,9 @@
             $("#allow2-connect").hide();
             $("#allow2-connecting").hide();
 
-            populateCountries($('#node-input-timezone'));
-
-            const pairingId = this.pairing;
+            const node = this;
+            populateCountries($('#node-input-timezone'), node.timezone);
+            const pairingId = node.pairing;
             //
             // check current status, we may have been disconnected
             //
@@ -166,7 +166,6 @@
                 }
 
                 var select = $('#node-input-childId');
-                const selected = select.val();
                 if(select.prop) {
                     var options = select.prop('options');
                 }
@@ -179,7 +178,7 @@
                     $.each(data.children || {}, function(index, child) {
                         options[options.length] = new Option(child.name, child.id);
                     });
-                    select.val(selected);
+                    select.val(node.childId);
                 } else {
                     options[options.length] = new Option("No Children in Account", '');
                     select.val('');
@@ -198,7 +197,7 @@
     </div>
 
     <div class="form-row">
-        <label for="node-input-pairing"><i class="fa fa-handshake"></i> Pairing</label>
+        <label for="node-input-pairing"><i class="fa fa-handshake-o"></i> Pairing</label>
         <input type="text" id="node-input-pairing" placeholder="Pairing">
     </div>
 

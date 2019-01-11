@@ -171,9 +171,7 @@
 <!-- script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.1/qrcode.min.js"></script -->
 
 <script type="text/x-red" data-template-name="Allow2Pairing">
-    <!-- <div class="form-row node-input-pairing">-->
-        <!--<a id="node-config-input-pairing" class="editor-button">Create New Device Pairing</a>-->
-    <!--</div> -->
+
     <div class="form-row">
         <label for="node-config-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-config-input-name" placeholder="Name">
@@ -191,16 +189,16 @@
 
         <div class="form-row"></div>
         <div class="form-row">
-            <label for="allow2-email"><i class="icon-tag"></i> Email</label>
+            <label for="allow2-email"><i class="icon-user"></i> Email</label>
             <input type="text" id="allow2-email" placeholder="bob@email.com">
         </div>
         <div class="form-row">
-            <label for="allow2-password"><i class="icon-tag"></i> Password</label>
+            <label for="allow2-password"><i class="icon-asterisk"></i> Password</label>
             <input type="password" id="allow2-password" placeholder="password">
         </div>
         <div class="form-row">
             <a class="btn" id="allow2-connect" target="_blank">Connect</a>
-            <span id="allow2-connecting" hidden>Connecting...</span>
+            <span id="allow2-connecting" hidden><i class="icon-refresh icon-spin icon-large"></i> Connecting...</span>
         </div>
         <div class="form-tips">
             Tip: you need an account at <a target="allow2" href="https://app.allow2.com">https://app.allow2.com</a>
@@ -211,15 +209,15 @@
     <div id="connectedDetails">
         <div class="form-row"></div>
         <div class="form-row" hidden>
-            <label for="node-config-input-userId"><i class="icon-tag"></i> UserId</label>
+            <label for="node-config-input-userId"><i class="fa fa-handshake-o"></i> UserId</label>
             <input type="password" id="node-config-input-userId" placeholder="not paired" readonly>
         </div>
         <div class="form-row" hidden>
-            <label for="node-config-input-pairId"><i class="icon-tag"></i> PairId</label>
+            <label for="node-config-input-pairId"><i class="fa fa-handshake-o"></i> PairId</label>
             <input type="password" id="node-config-input-pairId" placeholder="not paired" readonly>
         </div>
         <div class="form-row">
-            <label for="node-config-input-pairToken"><i class="icon-tag"></i> Pair Token</label>
+            <label for="node-config-input-pairToken"><i class="fa fa-handshake-o"></i> Pair Token</label>
             <input type="password" id="node-config-input-pairToken" placeholder="not paired" readonly>
         </div>
     </div>
