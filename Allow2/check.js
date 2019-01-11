@@ -23,7 +23,7 @@ module.exports = function(RED) {
             //node.activities = (msg.payload && msg.payload.activities) || node.activities || config.activities;
             //node.log = (msg.payload && msg.payload.log) || node.log || config.log;
 
-            const childId = (msg.payload && msg.payload.childId) || config.childId;
+            const childId = (msg.payload && msg.payload.childId) || parseInt(config.childId);
             const activities = (msg.payload && msg.payload.activities) || config.activities;
             const log = (msg.payload && msg.payload.log) || config.log;
 
@@ -35,6 +35,7 @@ module.exports = function(RED) {
                 //     {id: 3, log: true},           // 3 = Gaming
                 //     {id: 8, log: true}            // 8 = Screen Time
                 // ],
+                staging: true,
                 log: log				    // note: if set, record the usage (log it) and deduct quota, otherwise it only checks the access is permitted.
             };
 
@@ -42,33 +43,44 @@ module.exports = function(RED) {
 
             if (!params.childId) {
                 // throw an error?
-                node.error("hit an error", "Missing ChildId");
-                return
+                node.status({ fill: 'grey', shape:'ring', text: 'Missing ChildId' });
+                return node.error("hit an error", 'Missing ChildId');
             }
 
             //node.debug("calling allow2 check", params);
             node.status({ fill:"yellow", shape:"ring", text:"checking" });
 
             node._pairing.check(params, function (err, result) {
+                console.log('check result', result);
+                if (!err && !result) {
+                    err = new Error('no response from Allow2, contact support');
+                }
                 if (err) {
-                    node.error('check failure', err.message);
-                    node.status({ fill:"grey", shape:"ring", text:"error" });
-                    return
+                    node.status({ fill:"grey", shape:"ring", text:err.message });
+                    return node.error('check failure', err.message);
+                }
+                if (result.error) {
+                    node.status({ fill:"grey", shape:"ring", text: result.error });
+                    if (result.error != 'invalid pairToken') {
+                        return;
+                    }
+                    node._pairing.invalidatePairing(config.pairing, { paired: false }, function(err) {
+                        // nop
+                    });
+                    return;
                 }
                 if (!result.activities || !result.dayTypes || !result.children) {
-                    node.error('check failure', 'invalid response from Allow2');
-                    node.status({ fill:"grey", shape:"ring", text:"error" });
-                    return
+                    node.error('check failure', 'invalid response from Allow2, contact support');
+                    return node.status({ fill:"grey", shape:"ring", text:"error" });
                 }
                 var child = result.children.reduce(function(memo, child) {
                     return child.id == childId ? child : memo;
                 });
                 if (!child) {
                     node.error('check failure', 'unknown child');
-                    node.status({ fill:"grey", shape:"ring", text:"error" });
-                    return
+                    return node.status({ fill:"grey", shape:"ring", text:"error" });
                 }
-                msg.payload.childId = childId;
+                msg.payload.childId = parseInt(childId);
                 msg.payload.timezone = config.timezone;
                 msg.payload.response = result;
                 if (result.allowed) {

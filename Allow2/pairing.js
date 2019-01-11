@@ -48,7 +48,8 @@ module.exports = function(RED) {
         //console.log('pairing', nodeId, req.body);
         updatePairing(nodeId, {
             paired:     true,
-            children:   req.body.children
+            children:   req.body.children,
+            token:      req.body.token
         }, function(err) {
             if (err) {
                 return res.status(500).json({ status: 'error', message: err.message });
@@ -57,19 +58,53 @@ module.exports = function(RED) {
         res.status(200).json({ status: 'success' });
     });
 
+    var currentNodes = new Set();
+
+    RED.events.on("nodes-starting",function() {
+        console.log("Nodes starting");
+        currentNodes = new Set();
+    });
+
+    RED.events.on("nodes-started",function() {
+        console.log("All nodes have started", currentNodes);
+        const oldKeys = Object.keys(persist);
+        const originalCount = oldKeys.length;
+        oldKeys.forEach(function(key) {
+            if (!currentNodes.includes(key)) {
+                delete persist[key];
+            }
+        });
+        currentNodes = new Set();
+        if (originalCount != Object.keys(filtered).length) {
+            // we've lost one or more nodes, persist the new trimmed set
+            const data = JSON.stringify(persist);
+            //console.log("persistence", persist);
+            fs.writeFile(persistFile, data, 'utf8', function(err) {
+                // nop
+                console.log('trimmed', persist);
+            });
+        }
+    });
+
     function updatePairing(nodeId, nodeData, callback) {
-        if (!nodeData || !nodeData.id || !nodeData.children) {
+        if (!nodeData || (nodeData.paired && !nodeData.children)) {
             console.log('invalid child structure', nodeData);
             return callback(new Error('invalid child structure'));
         }
         persist.pairings = persist.pairings || {};
         persist.pairings[nodeId] = nodeData;
         // pre-sort the children
-        persist.pairings[nodeId].children = nodeData.children.sort(function(a, b) {
-            return (a.name || '').localeCompare(b.name || '')
-        });
+        if (nodeData.paired) {
+            persist.pairings[nodeId].children = nodeData.children && nodeData.children.sort(function (a, b) {
+                    return (a.name || '').localeCompare(b.name || '')
+                });
+        } else {
+            delete persist.pairings[nodeId].children;
+            delete persist.pairings[nodeId].token;
+        }
         const data = JSON.stringify(persist);
-        fs.writeFile(persistFile, data, callback);
+        //console.log("persistence", persist);
+        fs.writeFile(persistFile, data, 'utf8', callback);
     }
 
     function Pairing(config) {
@@ -78,6 +113,7 @@ module.exports = function(RED) {
         var node = this;
 
         const nodeId = node.id.replace(/\./g, '_');
+        currentNodes && currentNodes.add(nodeId);
         const pairing = (persist.pairings && persist.pairings[nodeId]) || "{ paired: false }";
 
         const userId = this.credentials.userId;
@@ -85,29 +121,38 @@ module.exports = function(RED) {
         const pairToken = this.credentials.pairToken;
 
         if (!pairing) {
-            node.status({ fill:"red", shape:"dot", text: "not paired" });
+            node.status({fill: "red", shape: "dot", text: "not paired"});
         }
 
-        this.check = function (params, callback) {
+        node.check = function (params, callback) {
 
             if (!pairing || !pairing.paired || !pairToken) {
-                return node.error("hit an error", "Not Paired");
+                return callback(new Error("Not Paired"));
+            }
+            if (pairing.token != pairToken) {
+                return callback(new Error("Pairing Mismatch (Need to Deploy?)"));
             }
             var params = Object.assign(params, {
-                userId: userId,
-                pairId: pairId,
+                userId: parseInt(userId),
+                pairId: parseInt(pairId),
                 pairToken: pairToken,
-                deviceToken: config.deviceToken
+                deviceToken: config.deviceToken || 'B0hNax6VCFi9vphu'
             });
 
             console.log('checking', params);
-            
+
             allow2.check(params, callback);
             // function(err, result) {
             //     console.log('result from Allow2 check:', err, result);
             //     callback(err, result);
             // });
-        }
+        };
+
+        node.invalidatePairing = function (callback) {
+            updatePairing(nodeId, {
+                paired: false
+            }, callback);
+        };
     }
 
     RED.nodes.registerType("Allow2Pairing", Pairing, {

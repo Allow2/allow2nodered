@@ -24,10 +24,16 @@
         oneditprepare: function() {
             //called at launch time
             console.log('oneditprepare', this);
-            $("#node-config-dialog-ok").button("disable");
-            $("#connectedDetails").hide();
-            $("#allow2-connect").hide();
-            $("#allow2-connecting").hide();
+            const okButton = $("#node-config-dialog-ok");
+            okButton.button("disable");
+            const allow2Login = $('#allow2Login');
+            const connectedDetails = $("#connectedDetails");
+            const connectButton = $("#allow2-connect");
+            const connectingActivityIndicator = $("#allow2-connecting");
+            allow2Login.hide();
+            connectedDetails.hide();
+            connectButton.hide();
+            connectingActivityIndicator.hide();
 
             const configId = this.id;
             //
@@ -40,16 +46,16 @@
 
                 if (data && data.paired) {
                     console.log('connected');
-                    return $("#connectedDetails").show();
+                    return connectedDetails.show();
                 }
 
                 console.log('not connected');
                 //
                 // Not Connected, show relevant controls to connect
                 //
-                const connectButton = $("#allow2-connect");
+                allow2Login.show();
                 connectButton.show();
-                $("#allow2-connecting").hide();
+                connectingActivityIndicator.hide();
 
                 //
                 // todo: add pairing qrcode mechanisms
@@ -71,7 +77,7 @@
                     if (!deviceToken || deviceToken.length < 1) { deviceToken = 'B0hNax6VCFi9vphu'; }
 
                     $("#allow2-connect").hide();
-                    $("#allow2-connecting").show(); // todo: better activity indicator
+                    connectingActivityIndicator.show(); // todo: better activity indicator
 
                     async.auto({
                         //
@@ -117,7 +123,8 @@
                                 url: 'allow2/paired',
                                 data: JSON.stringify({
                                     id: configId,
-                                    children: data.pair.children
+                                    children: data.pair.children,
+                                    token: data.pair.token
                                 }),
                                 contentType: 'application/json',
                                 dataType: 'json',
@@ -137,9 +144,9 @@
 
 
                     }, function(err, data) {
+                        connectingActivityIndicator.hide();
                         if (err) {
                             $("#allow2-connect").show();
-                            $("#allow2-connecting").hide();
                             return setTimeout(function () {
                                 alert(err.message);
                             }, 1);
@@ -151,7 +158,6 @@
                         $("#node-config-input-userId").val(pairing.userId);
                         $("#node-config-input-pairId").val(pairing.pairId);
                         $("#node-config-input-pairToken").val(pairing.token);
-                        const okButton = $("#node-config-dialog-ok");
                         okButton.button("enable");
                         okButton.click();
                     });
@@ -185,7 +191,7 @@
 
         <div class="form-row"></div>
         <div class="form-row">
-            <label for="allow2-email"><i class="icon-tag"></i> email</label>
+            <label for="allow2-email"><i class="icon-tag"></i> Email</label>
             <input type="text" id="allow2-email" placeholder="bob@email.com">
         </div>
         <div class="form-row">
