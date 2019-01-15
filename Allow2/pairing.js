@@ -49,6 +49,8 @@ module.exports = function(RED) {
         updatePairing(nodeId, {
             paired:     true,
             children:   req.body.children,
+            userId:      req.body.userId,
+            pairId:      req.body.pairId,
             token:      req.body.token
         }, function(err) {
             if (err) {

@@ -207,8 +207,7 @@
             <option value="">Loading...</option>
         </select>
     </div>
-    <div class="form-tips">Tip: Timezone is required in order for Allow2 to correctly assign the day type and rights for that time of day. Use values from the tz database
-    <a target="timezones" href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">https://en.wikipedia.org/wiki/List_of_tz_database_time_zones</a></div>
+    <div class="form-tips">Tip: Timezone is required in order for Allow2 to correctly assign the day type and rights for that time of day.</div>
 
     <div id="ChildSelection" hidden>
         <div class="form-row"></div>
@@ -244,6 +243,20 @@
         (and log access) even if access is no longer allowed. </dd>
     </dl>
     <h3>Details</h3>
-    <p>You MUST provide the activities list in the payload at this time (see: <a target="pairing" href="https://npm.runkit.com/allow2">https://npm.runkit.com/allow2</a>).</p>
+    <p>The currently supported activities are:</p>
+    <table>
+        <tr>
+            <th>id</th> <th>activity</th>
+        </tr>
+        <tr> <td>1</td> <td>Internet</td> </tr>
+        <tr> <td>2</td> <td>Computer</td> </tr>
+        <tr> <td>3</td> <td>Gaming</td> </tr>
+        <tr> <td>7</td> <td>Electricity</td> </tr>
+        <tr> <td>8</td> <td>Screen Time</td> </tr>
+        <tr> <td>9</td> <td>Social</td> </tr>
+        <tr> <td>10</td> <td>Phone Time</td> </tr>
+    </table>
+    <p>The intention is you use ALL categories that apply, for instance, a video game console should probably use activities 3, 7 and 8 as a minimum.</p>
+    <p>It is entirely up to you if the gaming has a social networking aspect, then by all means add activity 9.</p>
     <p></p>
 </script>
