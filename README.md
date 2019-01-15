@@ -23,7 +23,9 @@ The easiest way to get started is to drop Allow2 check node into a flow with an 
 
 ![Getting Started](https://github.com/Allow2/allow2nodered/raw/master/images/gettingstarted.png "Getting Started")
 
-In order to make use of the Allow2 Platform, you need an account. You can create one here for free: [https://app.allow2.com](https://app.allow2.com "Create Account").
+In order to make use of the Allow2 Platform, you need an account. You can create one here for free:
+<a target="Allow2" href="https://app.allow2.com" alt="Create Account">https://app.allow2.com</a>.
+
 To pair (link) node-red to Allow2, open the check node and select "Add New Allow2Pairing..."
 
 ![Link to Allow2](https://github.com/Allow2/allow2nodered/raw/master/images/createpairing.png "Create Pairing")
@@ -48,7 +50,7 @@ You can save the node and then configure your check node.
 To use the Allow2 platform, you need to send a payload to the <b>check</b> node containing at least one activity you want to check.
 
 The platform will determine the quotas, usage, current restrictions, types of day and much more
-(play with the Allow2 account at [https://app.allow2.com](https://app.allow2.com "Allow2") to find out what you can do, there's a lot there).
+(play with the Allow2 account at <a target="Allow2" href="https://app.allow2.com" alt="Allow2">https://app.allow2.com</a> to find out what you can do, there's a lot there).
 
 It then returns a json package containing information about whether or not the current activity is allowed, and lots of additional information about the
 various limitations and allowances, day types and such that led to that final result.
