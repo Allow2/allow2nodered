@@ -153,10 +153,36 @@ On a successful call, the input msg will be sent to the output and it will be an
 So looking for msg.payload.result.allowed == true/false is the simplest way to determine if the child is allowed to perform the
 requested activities at this time.
 
-
-
 The additional information let's you figure out why that is the overall result and perhaps
 be a little more detailed in any feedback to the child.
+
+## A More Complex (And Useful) Example
+
+In this flow, we use the built-in Allow2 timer mechanism.
+
+![XBox Example](https://github.com/Allow2/allow2nodered/raw/master/images/xbox.png "XBox Example")
+
+The idea is that when the home-automation socket is turned on, the first node triggers a payload to start checking if gaming is allowed.
+The timer payload includes the "timer": "start" parameter to tell the check node it is to continually check if access is still allowed.
+
+The "autostop" parameter will tell the timer in the Allow2 Check node to turn off the timer and stop checking the first time the response
+comes back as "allowed":false
+
+'''json
+{
+    "log": true,
+    "activities": [
+        {
+            "id": 3
+        }
+    ],
+    "timer": "start",
+    "autostop": true
+}
+'''
+
+Then on the output from the check node, we just need to check if msg.payload.result.allowed is false. If so, pass the message through to turn off the
+power to the XBox.
 
 # Advanced Usage
 

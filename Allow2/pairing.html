@@ -8,9 +8,9 @@
             deviceToken: { value : '', required: false }
         },
         credentials: {
-            userId: { value : 0, required: true },
-            pairId: { value : 0, required: true },
-            pairToken: { value : '', required: true }
+            userId: { type: "password" },
+            pairId: { type: "password" },
+            pairToken: { type: "password" }
         },
         color: '#FFFFFF',
         icon: "Allow2.png",
@@ -46,6 +46,8 @@
 
                 if (data && data.paired) {
                     console.log('connected');
+
+                    //$("#show-pairToken").val(data.pairToken);
                     return connectedDetails.show();
                 }
 
@@ -218,9 +220,13 @@
             <label for="node-config-input-pairId"><i class="fa fa-handshake-o"></i> PairId</label>
             <input type="password" id="node-config-input-pairId" placeholder="not paired" readonly>
         </div>
-        <div class="form-row">
+        <div class="form-row" hidden>
             <label for="node-config-input-pairToken"><i class="fa fa-handshake-o"></i> Pair Token</label>
             <input type="password" id="node-config-input-pairToken" placeholder="not paired" readonly>
+        </div>
+        <div class="form-row">
+            <label for="show-pairToken"><i class="fa fa-handshake-o"></i> Pair Token</label>
+            <input type="password" id="show-pairToken" placeholder="not paired" value="hewi7fo8fk82fwi7fgp09h" readonly>
         </div>
     </div>
 

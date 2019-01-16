@@ -22,19 +22,16 @@ module.exports = function(RED) {
             //node.childId = (msg.payload && msg.payload.childId) || node.childId || config.childId;
             //node.activities = (msg.payload && msg.payload.activities) || node.activities || config.activities;
             //node.log = (msg.payload && msg.payload.log) || node.log || config.log;
+            //node.autostop = msg.payload && msg.payload.autostop;
 
             const childId = (msg.payload && msg.payload.childId) || parseInt(config.childId);
             const activities = (msg.payload && msg.payload.activities) || config.activities;
-            const log = (msg.payload && msg.payload.log) || config.log;
+            const log = node.autostop || (msg.payload && msg.payload.log) || config.log;
 
             var params = {
                 tz: config.timezone,             // note: timezone is crucial to correctly calculate allowed times and day types
                 childId: childId,                   // MANDATORY!
                 activities: activities,
-                //     [
-                //     {id: 3, log: true},           // 3 = Gaming
-                //     {id: 8, log: true}            // 8 = Screen Time
-                // ],
                 staging: true,
                 log: log				    // note: if set, record the usage (log it) and deduct quota, otherwise it only checks the access is permitted.
             };
@@ -65,7 +62,11 @@ module.exports = function(RED) {
                         return;
                     }
                     node._pairing.invalidatePairing(config.pairing, { paired: false }, function(err) {
-                        // nop
+                        // todo: remove the persisted running timer params
+                        if (node.runningTimer) {
+                            clearInterval(node.runningTimer);
+                        }
+                        node.runningTimer = null;
                     });
                     return;
                 }
@@ -92,6 +93,7 @@ module.exports = function(RED) {
                     node.status({ fill:"green", shape:"dot", text: result.dayTypes.today.name + " : allowed" });
                 } else {
                     if (msg.payload.autostop) {
+                        // todo: remove the persisted running timer params
                         if (node.runningTimer) {
                             clearInterval(node.runningTimer);
                         }
@@ -106,24 +108,43 @@ module.exports = function(RED) {
         if (node._pairing) {
             node.on('input', function (msg) {
 
-                //if (msg.payload.timer) {
-                //    if (msg.payload.timer == "off") {
-                //        node.childId = (msg.payload && msg.payload.childId) || node.childId || config.childId;
-                //        node.activities = (msg.payload && msg.payload.activities) || node.activities || config.activities;
-                //        node.log = (msg.payload && msg.payload.log) || node.log || config.log;
-                //        if (node.runningTimer) {
-                //            clearInterval(node.runningTimer);
-                //        }
-                //        node.runningTimer = null;
-                //        return
-                //    }
-                //    if (!node.runningTimer) {
-                //        node.runningTimer = setInterval(node.check, 10000, msg);     // do every 10 seconds, but also fall through to do immediately
-                //    }
-                //}
-                node.check(msg)
+                if (msg.payload.timer && (['start', 'stop'].indexOf(msg.payload.timer) > -1)) {
+                    if (msg.payload.timer == "stop") {
+                        // todo: remove the persisted running timer params
+                        if (node.runningTimer) {
+                            clearInterval(node.runningTimer);
+                        }
+                        node.runningTimer = null;
+                        return;
+                    }
 
+                    // timer requested, set up the params based on the msg.payload
+                    // todo: persist the running timer params to the persistence for this node (see "restart the timer" todo below)
+                    if (node.runningTimer) {
+                        clearInterval(node.runningTimer);
+                    }
+                    node.runningTimer = setInterval(node.check.bind(node, msg), 10000);     // do every 10 seconds
+                    // but also fall through to do immediately
+                }
+                node.check(msg)
             });
+
+            /**
+             * clean up on node removal
+             */
+            node.on('close', function() {
+                if (node.runningTimer) {
+                    clearInterval(node.runningTimer);
+                }
+                node.runningTimer = null;
+            });
+
+            // todo: restart the timer if it was running before redeploying or restarting the server (see "persist the running timer params" todo above)
+            const persisted_msg = null;
+            if (persisted_msg) {
+                node.runningTimer = setInterval(node.check.bind(node, persisted_msg), 10000);     // do every 10 seconds
+            }
+
         } else {
             node.error('Missing pairing configuration');
         }
