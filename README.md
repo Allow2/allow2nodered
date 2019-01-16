@@ -57,14 +57,14 @@ various limitations and allowances, day types and such that led to that final re
 
 For example, a minimal msg.payload could be:
 
-'''json
+```json
 {
     "log": true,
     "activities": [
         { "id": 3, "log": true }
     ]
 }
-'''
+```
 
 Which only checks current ability to use the "Gaming" activity (ie, allowed to play games now, and have not used up all gaming time for today).
 
@@ -84,7 +84,7 @@ You can technically use the "counter" activities such as "Messages", let us know
 
 On a successful call, the input msg will be sent to the output and it will be annotated with an additional result field, eg:
 
-'''javascript
+```javascript
 {
     "log": true,
     "activities": [
@@ -146,7 +146,7 @@ On a successful call, the input msg will be sent to the output and it will be an
         }
     }
 }
-'''
+```
 
 So looking for msg.payload.result.allowed == true/false is the simplest way to determine if the child is allowed to perform the
 requested activities at this time.
