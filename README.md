@@ -70,9 +70,8 @@ Which only checks current ability to use the "Gaming" activity (ie, allowed to p
 
 Allow2NodeRed currently supports the following activities:
 
----
 | Id | Activity |
----
+| -- | -------- |
 | 1 | Internet|
 | 2 | Computer |
 | 3 | Gaming |
@@ -80,7 +79,6 @@ Allow2NodeRed currently supports the following activities:
 | 8 | Screen Time |
 | 9 | Social |
 | 10 | Phone Time |
----
 
 You can technically use the "counter" activities such as "Messages", let us know if you do that and your specific use case. Would be great to hear from you.
 
@@ -168,7 +166,7 @@ The timer payload includes the "timer": "start" parameter to tell the check node
 The "autostop" parameter will tell the timer in the Allow2 Check node to turn off the timer and stop checking the first time the response
 comes back as "allowed":false
 
-'''json
+```json
 {
     "log": true,
     "activities": [
@@ -179,7 +177,7 @@ comes back as "allowed":false
     "timer": "start",
     "autostop": true
 }
-'''
+```
 
 Then on the output from the check node, we just need to check if msg.payload.result.allowed is false. If so, pass the message through to turn off the
 power to the XBox.
