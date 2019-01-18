@@ -1,6 +1,6 @@
 {
-  "name": "Allow2NodeRED",
-  "version": "0.9.0",
+  "name": "allow2nodered",
+  "version": "0.9.1",
   "description": "Allow2 nodes for Node-RED",
   "main": "index.js",
   "scripts": {
@@ -26,7 +26,25 @@
     "async": "^2.6.1"
   },
   "keywords": [
-    "allow2"
+    "allow2",
+    "node-red",
+    "control",
+    "children",
+    "freedom",
+    "control",
+    "quota",
+    "parental-control",
+    "parental",
+    "parent",
+    "family",
+    "social",
+    "social-network",
+    "gaming",
+    "time",
+    "limit",
+    "limits",
+    "time-limit",
+    "automation"
   ],
   "maintainers": [
     {
