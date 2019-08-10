@@ -5,7 +5,8 @@
         category: 'config',
         defaults: {
             name: { value : '', required: true },
-            deviceToken: { value : '', required: false }
+            deviceToken: { value : '', required: false },
+            staging: { value: false }
         },
         credentials: {
             userId: { type: "password" },
@@ -48,6 +49,9 @@
                     console.log('connected');
 
                     //$("#show-pairToken").val(data.pairToken);
+                    if (data.staging) {
+                        $("#staging-connected").show();
+                    }
                     return connectedDetails.show();
                 }
 
@@ -58,6 +62,9 @@
                 allow2Login.show();
                 connectButton.show();
                 connectingActivityIndicator.hide();
+                if (data.staging) {
+                    $("#staging-connected").show();
+                }
 
                 //
                 // todo: add pairing qrcode mechanisms
@@ -192,6 +199,9 @@
         </div>
 
         <div class="form-row"></div>
+        <div id="staging" hidden>
+            <h2>** STAGING **</h2>
+        </div>
         <div class="form-row">
             <label for="allow2-email"><i class="icon-user"></i> Email</label>
             <input type="text" id="allow2-email" placeholder="bob@email.com">
@@ -227,6 +237,9 @@
         <div class="form-row">
             <label for="show-pairToken"><i class="fa fa-handshake-o"></i> Pair Token</label>
             <input type="password" id="show-pairToken" placeholder="not paired" value="hewi7fo8fk82fwi7fgp09h" readonly>
+        </div>
+        <div id="staging-connected" hidden>
+            <h2>** STAGING **</h2>
         </div>
     </div>
 

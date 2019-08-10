@@ -37,21 +37,25 @@ module.exports = function(RED) {
     //
     RED.httpAdmin.get("/allow2/paired/:id", RED.auth.needsPermission('Allow2Pairing.read'), function(req, res) {
         const nodeId = req.params.id.replace(/\./g, '_');
-        //console.log('checking', req.params.id, nodeId);
-        const pairing = (persist.pairings && persist.pairings[nodeId]) || "{ paired: false }";
+        const staging = !!process.env.ALLOW2STAGING;
+        console.log('checking', req.params.id, nodeId, staging);
+        const pairing = (persist.pairings && persist.pairings[nodeId]) || {
+            paired: false
+        };
         res.json(pairing);
     });
 
     RED.httpAdmin.post("/allow2/paired", RED.auth.needsPermission('Allow2Pairing.write'), function(req, res) {
         //console.log(req.body);
         const nodeId = req.body.id.replace(/\./g, '_');
-        //console.log('pairing', nodeId, req.body);
+        //console.log('pairing', nodeId, req.body, staging);
         updatePairing(nodeId, {
             paired:     true,
             children:   req.body.children,
             userId:      req.body.userId,
             pairId:      req.body.pairId,
-            token:      req.body.token
+            token:      req.body.token,
+            staging:    req.body.staging
         }, function(err) {
             if (err) {
                 return res.status(500).json({ status: 'error', message: err.message });
@@ -140,7 +144,8 @@ module.exports = function(RED) {
                 userId: parseInt(userId),
                 pairId: parseInt(pairId),
                 pairToken: pairToken,
-                deviceToken: config.deviceToken || 'B0hNax6VCFi9vphu'
+                deviceToken: config.deviceToken || 'B0hNax6VCFi9vphu',
+                staging: pairing.staging
             });
 
             console.log('checking', params);
