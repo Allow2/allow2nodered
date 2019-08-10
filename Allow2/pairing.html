@@ -1,12 +1,16 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/async/2.6.1/async.min.js"></script>
 <script type="text/javascript">
+
     RED.nodes.registerType('Allow2Pairing', {
         category: 'config',
         defaults: {
-            name: { value : "", required: true },
-            userId: { value : 0, required: true, validate:RED.validators.number() },
-            pairId: { value : 0, required: true, validate:RED.validators.number() },
-            pairToken: { value : "", required: true },
-            deviceToken: { value : "B0hNax6VCFi9vphu", required: true }
+            name: { value : '', required: true },
+            deviceToken: { value : '', required: false }
+        },
+        credentials: {
+            userId: { type: "password" },
+            pairId: { type: "password" },
+            pairToken: { type: "password" }
         },
         color: '#FFFFFF',
         icon: "Allow2.png",
@@ -16,39 +20,215 @@
         // onpaletteremove: function () {
         //     RED.events.off('nodes:add', this._onAddNode)
         // },
-        paletteLabel: 'Allow2 Device Pairing'
+        paletteLabel: 'Allow2 Device Pairing',
+        oneditprepare: function() {
+            //called at launch time
+            console.log('oneditprepare', this);
+            const okButton = $("#node-config-dialog-ok");
+            okButton.button("disable");
+            const allow2Login = $('#allow2Login');
+            const connectedDetails = $("#connectedDetails");
+            const connectButton = $("#allow2-connect");
+            const connectingActivityIndicator = $("#allow2-connecting");
+            allow2Login.hide();
+            connectedDetails.hide();
+            connectButton.hide();
+            connectingActivityIndicator.hide();
+
+            const configId = this.id;
+            //
+            // check current status, we may have been disconnected
+            //
+
+            $.get('allow2/paired/' + configId, function( data, textStatus, jqXHR ) {
+                //write access token value back out to the form
+                console.log('success', data, textStatus, jqXHR);
+
+                if (data && data.paired) {
+                    console.log('connected');
+
+                    //$("#show-pairToken").val(data.pairToken);
+                    return connectedDetails.show();
+                }
+
+                console.log('not connected');
+                //
+                // Not Connected, show relevant controls to connect
+                //
+                allow2Login.show();
+                connectButton.show();
+                connectingActivityIndicator.hide();
+
+                //
+                // todo: add pairing qrcode mechanisms
+                //
+
+                //
+                // Provide a username/password login option
+                // todo: switch to OAuth
+                //
+                var email, password, deviceName, deviceToken;
+                connectButton.click(function() {
+                    email = $("#allow2-email").val().trim().toLowerCase();
+                    password = $("#allow2-password").val();
+                    deviceName = $("#node-config-input-name").val().trim();
+                    deviceToken = $("#node-config-input-deviceToken").val().trim().toLowerCase();
+                    if (!deviceName || deviceName.length < 3)   { return alert("Missing name"); }
+                    if (!email || email.length < 3)             { return alert("Missing email"); }
+                    if (!password || password.length < 2)       { return alert("Missing password"); }
+                    if (!deviceToken || deviceToken.length < 1) { deviceToken = 'B0hNax6VCFi9vphu'; }
+
+                    $("#allow2-connect").hide();
+                    connectingActivityIndicator.show(); // todo: better activity indicator
+
+                    async.auto({
+                        //
+                        // Pair with Allow2
+                        //
+                        pair: function(callback) {
+                            const url = 'https://staging-api.allow2.com/api/pairDevice';
+                            const data = {
+                                user: email,
+                                pass: password,
+                                deviceToken: deviceToken,
+                                name: deviceName
+                            };
+                            console.log('connect', data);
+                            $.ajax({
+                                method: 'POST',
+                                url: url,
+                                data: JSON.stringify( data ),
+                                contentType: 'application/json',
+                                dataType: 'json',
+                                success: function( data, textStatus, jqXHR ) {
+                                    console.log('success', data, textStatus, jqXHR);
+
+                                    if (!data || !data.status || (data.status != 'success') || !data.userId || !data.pairId || !data.token) {
+                                        return callback(new Error(data && data.message ? data.message : (jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.message ? jqXHR.responseJSON.message : 'Unknown Error')));
+                                    }
+
+                                    return callback(null, data);
+                                },
+                                error: function(jqXHR, textStatus, errorThrown) {
+                                    return callback(new Error(jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.message ? jqXHR.responseJSON.message : errorThrown));
+                                }
+                            });
+
+                        },
+
+                        //
+                        // persist in global config
+                        //
+                        persist: ['pair', function(data, callback) {
+                            $.ajax({
+                                method: 'POST',
+                                url: 'allow2/paired',
+                                data: JSON.stringify({
+                                    id: configId,
+                                    children: data.pair.children,
+                                    userId: data.pair.userId,
+                                    pairId: data.pair.pairId,
+                                    token: data.pair.token
+                                }),
+                                contentType: 'application/json',
+                                dataType: 'json',
+                                success: function( data, textStatus, jqXHR ) {
+                                    console.log('persist success', data, textStatus, jqXHR);
+
+                                    if (!data || !data.status || (data.status != 'success')) {
+                                        return callback(new Error(data && data.message ? data.message : 'Unable to persist connection state - raise a bug in github/allow2nodered for support.'));
+                                    }
+                                    return callback(null, true);
+                                },
+                                error: function(jqXHR, textStatus, errorThrown) {
+                                    return callback(new Error(jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.message ? jqXHR.responseJSON.message : errorThrown));
+                                }
+                            });
+                        }]
+
+
+                    }, function(err, data) {
+                        connectingActivityIndicator.hide();
+                        if (err) {
+                            $("#allow2-connect").show();
+                            return setTimeout(function () {
+                                alert(err.message);
+                            }, 1);
+                        }
+
+                        // autosave
+                        const pairing = data.pair;
+                        console.log('pairing', pairing);
+                        $("#node-config-input-userId").val(pairing.userId);
+                        $("#node-config-input-pairId").val(pairing.pairId);
+                        $("#node-config-input-pairToken").val(pairing.token);
+                        okButton.button("enable");
+                        okButton.click();
+                    });
+                });
+            });
+        },
+        exportable: false
     });
 </script>
 
+<!-- script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.1/qrcode.min.js"></script -->
+
 <script type="text/x-red" data-template-name="Allow2Pairing">
-    <!-- <div class="form-row node-input-pairing">-->
-        <!--<a id="node-config-input-pairing" class="editor-button">Create New Device Pairing</a>-->
-    <!--</div> -->
+
     <div class="form-row">
         <label for="node-config-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-config-input-name" placeholder="Name">
     </div>
 
-    <div class="form-row">
-        <label for="node-config-input-deviceToken"><i class="icon-tag"></i> Device Token</label>
-        <input type="text" id="node-config-input-deviceToken" placeholder="B0hNax6VCFi9vphu">
-    </div>
-    <div class="form-tips">Tip: you can use this example device token for testing or generate your own at
-    <a target="devportal" href="https://developer.allow2.com">https://developer.allow2.com</a></div>
+   <div id="allow2Login">
+        <div class="form-row">
+            <label for="node-config-input-deviceToken"><i class="icon-tag"></i> Device Token</label>
+            <input type="text" id="node-config-input-deviceToken" placeholder="B0hNax6VCFi9vphu">
+        </div>
+        <div class="form-tips">
+            Tip: you can leave this blank to use this default device token, or generate your own at
+            <a target="devportal" href="https://developer.allow2.com">https://developer.allow2.com</a>
+        </div>
 
-    <div class="form-row">
-        <label for="node-config-input-userId"><i class="icon-tag"></i> UserId</label>
-        <input type="text" id="node-config-input-userId" placeholder="UserId">
+        <div class="form-row"></div>
+        <div class="form-row">
+            <label for="allow2-email"><i class="icon-user"></i> Email</label>
+            <input type="text" id="allow2-email" placeholder="bob@email.com">
+        </div>
+        <div class="form-row">
+            <label for="allow2-password"><i class="icon-asterisk"></i> Password</label>
+            <input type="password" id="allow2-password" placeholder="password">
+        </div>
+        <div class="form-row">
+            <a class="btn" id="allow2-connect" target="_blank">Connect</a>
+            <span id="allow2-connecting" hidden><i class="icon-refresh icon-spin icon-large"></i> Connecting...</span>
+        </div>
+        <div class="form-tips">
+            Tip: you need an account at <a target="allow2" href="https://app.allow2.com">https://app.allow2.com</a>
+            in order to create this connection.
+        </div>
     </div>
-    <div class="form-row">
-        <label for="node-config-input-pairId"><i class="icon-tag"></i> PairId</label>
-        <input type="text" id="node-config-input-pairId" placeholder="PairId">
+
+    <div id="connectedDetails">
+        <div class="form-row"></div>
+        <div class="form-row" hidden>
+            <label for="node-config-input-userId"><i class="fa fa-handshake-o"></i> UserId</label>
+            <input type="password" id="node-config-input-userId" placeholder="not paired" readonly>
+        </div>
+        <div class="form-row" hidden>
+            <label for="node-config-input-pairId"><i class="fa fa-handshake-o"></i> PairId</label>
+            <input type="password" id="node-config-input-pairId" placeholder="not paired" readonly>
+        </div>
+        <div class="form-row" hidden>
+            <label for="node-config-input-pairToken"><i class="fa fa-handshake-o"></i> Pair Token</label>
+            <input type="password" id="node-config-input-pairToken" placeholder="not paired" readonly>
+        </div>
+        <div class="form-row">
+            <label for="show-pairToken"><i class="fa fa-handshake-o"></i> Pair Token</label>
+            <input type="password" id="show-pairToken" placeholder="not paired" value="hewi7fo8fk82fwi7fgp09h" readonly>
+        </div>
     </div>
-    <div class="form-row">
-        <label for="node-config-input-pairToken"><i class="icon-tag"></i> Pair Token</label>
-        <input type="text" id="node-config-input-pairToken" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX">
-    </div>
-    <div class="form-tips">Tip: generate a new pairing at <a target="pairing" href="https://npm.runkit.com/allow2">https://npm.runkit.com/allow2</a>.</div>
 
 </script>
 

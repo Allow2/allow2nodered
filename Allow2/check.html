@@ -1,12 +1,138 @@
 <script type="text/javascript">
+
+    // todo, generate with moment-timezone.js and localise (language)
+    const timezones = [
+        { code: 'Etc/GMT+12', text: '(UTC-12:00) International Date Line West' },
+        { code: 'Etc/GMT+11', text: '(UTC-11:00) Coordinated Universal Time-11' },
+        { code: 'Etc/GMT+10', text: '(UTC-10:00) Hawaii' },
+        { code: 'America/Anchorage', text: '(UTC-09:00) Alaska' },
+        { code: 'America/Santa_Isabel', text: '(UTC-08:00) Baja California' },
+        { code: 'America/Dawson', text: '(UTC-07:00) Pacific Time (US & Canada)' },
+        { code: 'America/Dawson', text: '(UTC-08:00) Pacific Time (US & Canada)' },
+        { code: 'America/Creston', text: '(UTC-07:00) Arizona' },
+        { code: 'America/Chihuahua', text: '(UTC-07:00) Chihuahua, La Paz, Mazatlan' },
+        { code: 'America/Boise', text: '(UTC-07:00) Mountain Time (US & Canada)' },
+        { code: 'America/Belize', text: '(UTC-06:00) Central America' },
+        { code: 'America/Chicago', text: '(UTC-06:00) Central Time (US & Canada)' },
+        { code: 'America/Bahia_Banderas', text: '(UTC-06:00) Guadalajara, Mexico City, Monterrey' },
+        { code: 'America/Regina', text: '(UTC-06:00) Saskatchewan' },
+        { code: 'America/Bogota', text: '(UTC-05:00) Bogota, Lima, Quito' },
+        { code: 'America/Detroit', text: '(UTC-05:00) Eastern Time (US & Canada)' },
+        { code: 'America/Indiana/Marengo', text: '(UTC-05:00) Indiana (East)' },
+        { code: 'America/Caracas', text: '(UTC-04:30) Caracas' },
+        { code: 'America/Asuncion', text: '(UTC-04:00) Asuncion' },
+        { code: 'America/Glace_Bay', text: '(UTC-04:00) Atlantic Time (Canada)' },
+        { code: 'America/Campo_Grande', text: '(UTC-04:00) Cuiaba' },
+        { code: 'America/Anguilla', text: '(UTC-04:00) Georgetown, La Paz, Manaus, San Juan' },
+        { code: 'America/Santiago', text: '(UTC-04:00) Santiago' },
+        { code: 'America/St_Johns', text: '(UTC-03:30) Newfoundland' },
+        { code: 'America/Sao_Paulo', text: '(UTC-03:00) Brasilia' },
+        { code: 'America/Argentina/La_Rioja', text: '(UTC-03:00) Buenos Aires' },
+        { code: 'America/Araguaina', text: '(UTC-03:00) Cayenne, Fortaleza' },
+        { code: 'America/Godthab', text: '(UTC-03:00) Greenland' },
+        { code: 'America/Montevideo', text: '(UTC-03:00) Montevideo' },
+        { code: 'America/Bahia', text: '(UTC-03:00) Salvador' },
+        { code: 'America/Noronha', text: '(UTC-02:00) Coordinated Universal Time-02' },
+        { code: 'America/Scoresbysund', text: '(UTC-01:00) Azores' },
+        { code: 'Atlantic/Cape_Verde', text: '(UTC-01:00) Cape Verde Is.' },
+        { code: 'Africa/Casablanca', text: '(UTC) Casablanca' },
+        { code: 'America/Danmarkshavn', text: '(UTC) Coordinated Universal Time' },
+        { code: 'Europe/Isle_of_Man', text: '(UTC) Edinburgh, London' },
+        { code: 'Europe/Isle_of_Man', text: '(UTC+01:00) Edinburgh, London' },
+        { code: 'Atlantic/Canary', text: '(UTC) Dublin, Lisbon' },
+        { code: 'Africa/Abidjan', text: '(UTC) Monrovia, Reykjavik' },
+        { code: 'Arctic/Longyearbyen', text: '(UTC+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna' },
+        { code: 'Europe/Belgrade', text: '(UTC+01:00) Belgrade, Bratislava, Budapest, Ljubljana, Prague' },
+        { code: 'Africa/Ceuta', text: '(UTC+01:00) Brussels, Copenhagen, Madrid, Paris' },
+        { code: 'Europe/Sarajevo', text: '(UTC+01:00) Sarajevo, Skopje, Warsaw, Zagreb' },
+        { code: 'Africa/Algiers', text: '(UTC+01:00) West Central Africa' },
+        { code: 'Africa/Windhoek', text: '(UTC+01:00) Windhoek' },
+        { code: 'Asia/Nicosia', text: '(UTC+02:00) Athens, Bucharest' },
+        { code: 'Asia/Beirut', text: '(UTC+02:00) Beirut' },
+        { code: 'Africa/Cairo', text: '(UTC+02:00) Cairo' },
+        { code: 'Asia/Damascus', text: '(UTC+02:00) Damascus' },
+        { code: 'Asia/Nicosia', text: '(UTC+02:00) E. Europe' },
+        { code: 'Africa/Blantyre', text: '(UTC+02:00) Harare, Pretoria' },
+        { code: 'Europe/Helsinki', text: '(UTC+02:00) Helsinki, Kyiv, Riga, Sofia, Tallinn, Vilnius' },
+        { code: 'Europe/Istanbul', text: '(UTC+03:00) Istanbul' },
+        { code: 'Asia/Jerusalem', text: '(UTC+02:00) Jerusalem' },
+        { code: 'Africa/Tripoli', text: '(UTC+02:00) Tripoli' },
+        { code: 'Asia/Amman', text: '(UTC+03:00) Amman' },
+        { code: 'Asia/Baghdad', text: '(UTC+03:00) Baghdad' },
+        { code: 'Europe/Kaliningrad', text: '(UTC+03:00) Kaliningrad, Minsk' },
+        { code: 'Asia/Aden', text: '(UTC+03:00) Kuwait, Riyadh' },
+        { code: 'Africa/Addis_Ababa', text: '(UTC+03:00) Nairobi' },
+        { code: 'Europe/Kirov', text: '(UTC+03:00) Moscow, St. Petersburg, Volgograd' },
+        { code: 'Europe/Astrakhan', text: '(UTC+04:00) Samara, Ulyanovsk, Saratov' },
+        { code: 'Asia/Tehran', text: '(UTC+03:30) Tehran' },
+        { code: 'Asia/Dubai', text: '(UTC+04:00) Abu Dhabi, Muscat' },
+        { code: 'Asia/Baku', text: '(UTC+04:00) Baku' },
+        { code: 'Indian/Mahe', text: '(UTC+04:00) Port Louis' },
+        { code: 'Asia/Tbilisi', text: '(UTC+04:00) Tbilisi' },
+        { code: 'Asia/Yerevan', text: '(UTC+04:00) Yerevan' },
+        { code: 'Asia/Kabul', text: '(UTC+04:30) Kabul' },
+        { code: 'Antarctica/Mawson', text: '(UTC+05:00) Ashgabat, Tashkent' },
+        { code: 'Asia/Yekaterinburg', text: '(UTC+05:00) Yekaterinburg' },
+        { code: 'Asia/Karachi', text: '(UTC+05:00) Islamabad, Karachi' },
+        { code: 'Asia/Kolkata', text: '(UTC+05:30) Chennai, Kolkata, Mumbai, New Delhi' },
+        { code: 'Asia/Colombo', text: '(UTC+05:30) Sri Jayawardenepura' },
+        { code: 'Asia/Katmandu', text: '(UTC+05:45) Kathmandu' },
+        { code: 'Antarctica/Vostok', text: '(UTC+06:00) Astana' },
+        { code: 'Asia/Dhaka', text: '(UTC+06:00) Dhaka' },
+        { code: 'Asia/Rangoon', text: '(UTC+06:30) Yangon (Rangoon)' },
+        { code: 'Antarctica/Davis', text: '(UTC+07:00) Bangkok, Hanoi, Jakarta' },
+        { code: 'Asia/Novokuznetsk', text: '(UTC+07:00) Novosibirsk' },
+        { code: 'Asia/Hong_Kong', text: '(UTC+08:00) Beijing, Chongqing, Hong Kong, Urumqi' },
+        { code: 'Asia/Krasnoyarsk', text: '(UTC+08:00) Krasnoyarsk' },
+        { code: 'Asia/Brunei', text: '(UTC+08:00) Kuala Lumpur, Singapore' },
+        { code: 'Antarctica/Casey', text: '(UTC+08:00) Perth' },
+        { code: 'Asia/Taipei', text: '(UTC+08:00) Taipei' },
+        { code: 'Asia/Choibalsan', text: '(UTC+08:00) Ulaanbaatar' },
+        { code: 'Asia/Irkutsk', text: '(UTC+08:00) Irkutsk' },
+        { code: 'Asia/Dili', text: '(UTC+09:00) Osaka, Sapporo, Tokyo' },
+        { code: 'Asia/Pyongyang', text: '(UTC+09:00) Seoul' },
+        { code: 'Australia/Adelaide', text: '(UTC+09:30) Adelaide' },
+        { code: 'Australia/Darwin', text: '(UTC+09:30) Darwin' },
+        { code: 'Australia/Brisbane', text: '(UTC+10:00) Brisbane' },
+        { code: 'Australia/Melbourne', text: '(UTC+10:00) Canberra, Melbourne, Sydney' },
+        { code: 'Antarctica/DumontDUrville', text: '(UTC+10:00) Guam, Port Moresby' },
+        { code: 'Australia/Currie', text: '(UTC+10:00) Hobart' },
+        { code: 'Asia/Chita', text: '(UTC+09:00) Yakutsk' },
+        { code: 'Antarctica/Macquarie', text: '(UTC+11:00) Solomon Is., New Caledonia' },
+        { code: 'Asia/Sakhalin', text: '(UTC+11:00) Vladivostok' },
+        { code: 'Antarctica/McMurdo', text: '(UTC+12:00) Auckland, Wellington' },
+        { code: 'Etc/GMT-12', text: '(UTC+12:00) Coordinated Universal Time+12' },
+        { code: 'Pacific/Fiji', text: '(UTC+12:00) Fiji' },
+        { code: 'Asia/Anadyr', text: '(UTC+12:00) Magadan' },
+        { code: 'Asia/Kamchatka', text: '(UTC+12:00) Petropavlovsk-Kamchatsky - Old' },
+        { code: 'Etc/GMT-13', text: '(UTC+13:00) Nuku\'alofa' },
+        { code: 'Pacific/Apia', text: '(UTC+13:00) Samoa' }
+    ];
+
+    function populateCountries(select, selected) {
+        if (select.prop) {
+            var options = select.prop('options');
+        }
+        else {
+            var options = select.attr('options');
+        }
+        $('option', select).remove();
+        $.each(timezones, function (index, timezone) {
+            options[options.length] = new Option(timezone.text, timezone.code);
+        });
+        console.log('selected timezone', selected);
+        $("option[value='" + selected + "']", select).attr("selected", true);
+        //select.val(selected);
+    }
+
     RED.nodes.registerType('Allow2Check', {
         category: 'Allow2',
         color: '#FFFFFF',
         defaults: {
-            name: { value : '' },
-            pairing: { type: 'Allow2Pairing', required: true },
-            timezone: { value : 'Australia/Sydney', required: true },
-            childId: { value : '' }
+            name: {value: ''},
+            pairing: {type: 'Allow2Pairing', required: true},
+            timezone: {value: 'Australia/Sydney', required: true},
+            childId: {value: ''}
         },
         inputs: 1,
         outputs: 1,
@@ -14,8 +140,52 @@
         outputLabels: "result",
         paletteLabel: 'check',
         icon: "Allow2.png",
-        label: function() {
+        label: function () {
             return this.name || 'check';
+        },
+        oneditprepare: function () {
+            //called at launch time
+            console.log('oneditprepare', this);
+            $("#node-config-dialog-ok").button("disable");
+            $("#connectedDetails").hide();
+            $("#allow2-connect").hide();
+            $("#allow2-connecting").hide();
+
+            const node = this;
+            populateCountries($('#node-input-timezone'), node.timezone);
+            const pairingId = node.pairing;
+            //
+            // check current status, we may have been disconnected
+            //
+
+            $.get('allow2/paired/' + pairingId, function (data, textStatus, jqXHR) {
+                console.log('success', data);
+
+                if (!data || !data.paired) {
+                    return;
+                }
+
+                var select = $('#node-input-childId');
+                if(select.prop) {
+                    var options = select.prop('options');
+                }
+                else {
+                    var options = select.attr('options');
+                }
+                $('option', select).remove();
+                if (data && data.children && (data.children.length > 0)) {
+                    options[options.length] = new Option('', '');
+                    $.each(data.children || {}, function(index, child) {
+                        options[options.length] = new Option(child.name, child.id);
+                    });
+                    select.val(node.childId);
+                } else {
+                    options[options.length] = new Option("No Children in Account", '');
+                    select.val('');
+                }
+
+                $("#ChildSelection").show();
+            });
         }
     });
 </script>
@@ -27,22 +197,28 @@
     </div>
 
     <div class="form-row">
-        <label for="node-input-pairing"><i class="fa fa-handshake"></i> Pairing</label>
+        <label for="node-input-pairing"><i class="fa fa-handshake-o"></i> Pairing</label>
         <input type="text" id="node-input-pairing" placeholder="Pairing">
     </div>
 
     <div class="form-row">
         <label for="node-input-timezone"><i class="fa fa-globe"></i> Timezone</label>
-        <input type="text" id="node-input-timezone" placeholder="Australia/Sydney">
+        <select id="node-input-timezone">
+            <option value="">Loading...</option>
+        </select>
     </div>
-    <div class="form-tips">Tip: Timezone is required in order for Allow2 to correctly assign the day type and rights for that time of day. Use values from the tz database
-    <a target="timezones" href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">https://en.wikipedia.org/wiki/List_of_tz_database_time_zones</a></div>
+    <div class="form-tips">Tip: Timezone is required in order for Allow2 to correctly assign the day type and rights for that time of day.</div>
 
-    <div class="form-row">
-        <label for="node-input-childId"><i class="fa fa-child"></i> ChildId</label>
-        <input type="text" id="node-input-childId" placeholder="ChildId">
+    <div id="ChildSelection" hidden>
+        <div class="form-row"></div>
+        <div class="form-row">
+            <label for="node-input-childId"><i class="fa fa-child"></i> Child</label>
+            <select id="node-input-childId">
+                <option value="">Loading...</option>
+            </select>
+        </div>
+        <div class="form-tips">Tip: This is optional here, but you need to either specify the child here for all checks, or provide a <code>msg.payload.childId</code>. If using a payload value, that will be used instead.</div>
     </div>
-    <div class="form-tips">Tip: The ChildId is required. You can specify the childId here, but if provided via <code>msg.payload.childId</code> that payload value will override it.</div>
 </script>
 
 <script type="text/x-red" data-help-name="Allow2Check">
@@ -59,7 +235,7 @@
         <dd>List the activities we need to check/log, eg: <b>[{ "id": 3, "log": true }]</b> the "log" parameter overrides the payload.log value for that activity.</dd>
 
         <dt class="optional">payload.timer <span class="property-type">string</span> </dt>
-        <dd>values: "on", "off" - passing this parameter will enable or disable a timer to periodically check the allowance (repeatedly send "check")
+        <dd>values: "start", "stop" - passing this parameter will enable or disable a timer to periodically check the allowance (repeatedly send "check")
         without having to set up your own timer.</dd>
 
         <dt class="optional">payload.autostop <span class="property-type">boolean</span> </dt>
@@ -67,6 +243,20 @@
         (and log access) even if access is no longer allowed. </dd>
     </dl>
     <h3>Details</h3>
-    <p>You MUST provide the activities list in the payload at this time (see: <a target="pairing" href="https://npm.runkit.com/allow2">https://npm.runkit.com/allow2</a>).</p>
+    <p>The currently supported activities are:</p>
+    <table>
+        <tr>
+            <th>id</th> <th>activity</th>
+        </tr>
+        <tr> <td>1</td> <td>Internet</td> </tr>
+        <tr> <td>2</td> <td>Computer</td> </tr>
+        <tr> <td>3</td> <td>Gaming</td> </tr>
+        <tr> <td>7</td> <td>Electricity</td> </tr>
+        <tr> <td>8</td> <td>Screen Time</td> </tr>
+        <tr> <td>9</td> <td>Social</td> </tr>
+        <tr> <td>10</td> <td>Phone Time</td> </tr>
+    </table>
+    <p>The intention is you use ALL categories that apply, for instance, a video game console should probably use activities 3, 7 and 8 as a minimum.</p>
+    <p>It is entirely up to you if the gaming has a social networking aspect, then by all means add activity 9.</p>
     <p></p>
 </script>
