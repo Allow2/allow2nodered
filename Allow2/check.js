@@ -33,6 +33,7 @@ module.exports = function(RED) {
             if (!params.childId) {
                 // throw an error?
                 node.error("hit an error", "Missing ChildId");
+                node.status({ fill:"grey", shape:"ring", text: "Missing ChildId"  });
                 return
             }
 
