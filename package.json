@@ -23,7 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "allow2": "^1.0.0",
-    "async": "^2.6.1"
+    "async": "^3.2.2"
   },
   "keywords": [
     "allow2",
